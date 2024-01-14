@@ -9,17 +9,18 @@ io.on("connection", (socket) => {
   console.log(`Socket Connected ${socket.id}`);
 
   socket.on("room:join", ({ email, room }) => {
-    emailToSocketIdMaping.set(email, socket.id);
-    socketIdToEmailMaping.set(socket.id, email);
-
     io.to(room).emit("user:joined", { email, id: socket.id });
 
     socket.join(room);
     io.to(socket.id).emit("room:join", { email, room });
   });
 
-  socket.on("user:call", ({ to, offer }) => {
-    io.to(to).emit("incomming:call", { from: socket.id, offer });
+  socket.on("user:call", ({ email, to, offer }) => {
+    io.to(to).emit("incomming:call", {
+      fromMail: email,
+      from: socket.id,
+      offer,
+    });
   });
 
   socket.on("call:accepted", ({ to, ans }) => {
